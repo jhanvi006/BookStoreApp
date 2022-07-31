@@ -10,6 +10,7 @@ import com.bridgelabz.bookstoreapp.repository.BookRepository;
 import com.bridgelabz.bookstoreapp.repository.CartRepository;
 import com.bridgelabz.bookstoreapp.repository.OrderRepository;
 import com.bridgelabz.bookstoreapp.util.TokenUtility;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 public class OrderService implements IOrderService{
     @Autowired
     public OrderRepository orderRepository;
@@ -70,6 +72,7 @@ public class OrderService implements IOrderService{
             book.setQuantity(updatedQty);
             cartRepository.deleteById(cart.get(i).getCartId());
         }
+        log.info("Order placed!");
         return order;
     }
     private int updateBookQty(int bookQty, int bookQtyInCart) {
@@ -115,6 +118,7 @@ public class OrderService implements IOrderService{
                     }
                 }
             }
+            log.info("Order canceled for id "+id+" !");
         }
         else throw new CustomException("Order is already canceled!");
     }

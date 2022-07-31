@@ -4,12 +4,14 @@ import com.bridgelabz.bookstoreapp.dto.BookDTO;
 import com.bridgelabz.bookstoreapp.exceptions.CustomException;
 import com.bridgelabz.bookstoreapp.model.Book;
 import com.bridgelabz.bookstoreapp.repository.BookRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Slf4j
 public class BookService implements IBookService {
     @Autowired
     private BookRepository repository;
@@ -27,6 +29,7 @@ public class BookService implements IBookService {
             throw new CustomException(bookDTO.bookName+" Book already exists.");
         else {
             Book book = new Book(bookDTO);
+            log.info("New book added!");
             return repository.save(book);
         }
     }
@@ -39,12 +42,14 @@ public class BookService implements IBookService {
     public Book editBook(int id, BookDTO bookDTO) {
         Book book = this.getBookById(id);
         book.updateBookDetails(bookDTO);
+        log.info("Book info updated for id "+id+" !");
         return repository.save(book);
     }
     @Override
     public void deleteBook(int id) {
         Book book = this.getBookById(id);
         repository.delete(book);
+        log.info("Book info deleted for id "+id+" !");
     }
     @Override
     public Book getBookByName(String bookName) {

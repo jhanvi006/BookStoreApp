@@ -7,6 +7,7 @@ import com.bridgelabz.bookstoreapp.model.Email;
 import com.bridgelabz.bookstoreapp.model.User;
 import com.bridgelabz.bookstoreapp.repository.UserRepository;
 import com.bridgelabz.bookstoreapp.util.TokenUtility;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class UserService implements IUserService{
     @Autowired
     private UserRepository repository;
@@ -48,6 +50,7 @@ public class UserService implements IUserService{
         } catch (MessagingException e) {
             throw new CustomException(e.getMessage());
         }
+        log.info("New user registered!");
         return repository.save(user);
     }
     @Override
@@ -60,12 +63,14 @@ public class UserService implements IUserService{
     public User editUser(String token, UserDTO userDTO) {
         User user = this.getUserById(token);
         user.updateUser(userDTO);
+        log.info("User info updated for id "+tokenUtility.decodeToken(token)+" !");
         return repository.save(user);
     }
     @Override
     public void deleteUser(String token) {
         User user = this.getUserById(token);
         repository.delete(user);
+        log.info("User info deleted for id "+tokenUtility.decodeToken(token)+" !");
     }
     @Override
     public User login(LoginDTO loginDTO) {

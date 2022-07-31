@@ -7,12 +7,14 @@ import com.bridgelabz.bookstoreapp.model.Cart;
 import com.bridgelabz.bookstoreapp.model.User;
 import com.bridgelabz.bookstoreapp.repository.CartRepository;
 import com.bridgelabz.bookstoreapp.util.TokenUtility;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Slf4j
 public class CartService implements ICartService {
     @Autowired
     public CartRepository cartRepository;
@@ -42,6 +44,7 @@ public class CartService implements ICartService {
             if (cartDTO.quantity <= book.getQuantity()) {
                 double total_price = calculateTotalPrice(cartDTO.quantity, book.getPrice());
                 Cart cart = new Cart(user, book, cartDTO, total_price);
+                log.info("Item added to cart!");
                 return cartRepository.save(cart);
             } else throw new CustomException("Book quantity is not enough!");
         }
@@ -62,6 +65,7 @@ public class CartService implements ICartService {
         if (cartDTO.quantity <= book.getQuantity()) {
             double total_price = calculateTotalPrice(cartDTO.quantity, book.getPrice());
             cart.updateCart(book, cartDTO, total_price);
+            log.info("Cart updated for id "+id+" !");
             return cartRepository.save(cart);
         }
         else throw new CustomException("Book quantity is not enough!");
@@ -70,6 +74,7 @@ public class CartService implements ICartService {
     public void deleteItem(int id) {
         Cart cart = this.getCartItemById(id);
         cartRepository.delete(cart);
+        log.info("Cart deleted for id "+id+" !");
     }
     @Override
     public Cart updateBookQuantityInCart(int id, CartDTO cartDTO) {
