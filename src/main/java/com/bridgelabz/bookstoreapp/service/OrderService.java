@@ -2,18 +2,17 @@ package com.bridgelabz.bookstoreapp.service;
 
 import com.bridgelabz.bookstoreapp.dto.OrderDTO;
 import com.bridgelabz.bookstoreapp.exceptions.CustomException;
-import com.bridgelabz.bookstoreapp.model.Book;
-import com.bridgelabz.bookstoreapp.model.Cart;
-import com.bridgelabz.bookstoreapp.model.Order;
-import com.bridgelabz.bookstoreapp.model.User;
+import com.bridgelabz.bookstoreapp.model.*;
 import com.bridgelabz.bookstoreapp.repository.BookRepository;
 import com.bridgelabz.bookstoreapp.repository.CartRepository;
 import com.bridgelabz.bookstoreapp.repository.OrderRepository;
+import com.bridgelabz.bookstoreapp.repository.UserRepository;
 import com.bridgelabz.bookstoreapp.util.TokenUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +33,11 @@ public class OrderService implements IOrderService{
     @Autowired
     UserService userService;
     @Autowired
+    UserRepository userRepository;
+    @Autowired
     TokenUtility tokenUtility;
+    @Autowired
+    EmailService emailService;
     @Override
     public List<Order> getAllOrders() {
         List<Order> orderList = orderRepository.findAll();
@@ -50,6 +53,7 @@ public class OrderService implements IOrderService{
         double totalOrderPrice = 0;
         int totalOrderQty = 0;
         List<Book> orderedBooks = new ArrayList<>();
+        User user = userService.getUserById(token);
         String address = "";
         for (int i=0; i<cart.size(); i++){
             totalOrderPrice += cart.get(i).getTotalPrice();
@@ -57,7 +61,6 @@ public class OrderService implements IOrderService{
             orderedBooks.add(cart.get(i).getBookData());
         }
         if (orderDTO.getAddress() == null){
-            User user = userService.getUserById(token);
             address = user.getAddress();
         }
         else
@@ -66,6 +69,12 @@ public class OrderService implements IOrderService{
         Order order = new Order(userId, address, cart, orderedBooks, LocalDate.now(), totalOrderQty, totalOrderPrice, false);
         orderList.add(order);
         orderRepository.save(order);
+        Email email = new Email(user.getEmail(), "Order placed successfully", "Order Details: "+" => "+order.getBook());
+        try {
+            emailService.sendMail(email);
+        } catch (MessagingException e) {
+            throw new CustomException(e.getMessage());
+        }
         for (int i=0; i<cart.size(); i++) {
             Book book = cart.get(i).getBookData();
             int updatedQty = this.updateBookQty(book.getQuantity(), cart.get(i).getQuantity());
@@ -98,9 +107,16 @@ public class OrderService implements IOrderService{
     @Override
     public void cancelOrder(int id) {
         Order order = this.getOrderItemById(id);
+        User user = userRepository.getUserById(order.getUserId());
         if (order.isCancel() == false) {
             orderRepository.updateCancel(id);
-            List<Book> book = order.getBook(); //
+            Email email = new Email(user.getEmail(), "Order cancelled successfully", "Order Details: "+" => "+order.getBook());
+            try {
+                emailService.sendMail(email);
+            } catch (MessagingException e) {
+                throw new CustomException(e.getMessage());
+            }
+            List<Book> book = order.getBook();
             for (int j = 0; j < orderList.size(); j++) {
                 if (orderList.get(j).getOrderId() == id) {
                     for (int i = 0; i < book.size(); i++) {
