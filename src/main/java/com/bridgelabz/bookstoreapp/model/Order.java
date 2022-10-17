@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -27,13 +26,16 @@ public class Order {
     private double orderPrice;
     private LocalDate orderedAt;
     private boolean cancel;
-    public Order(int userId, String address, List<Cart> cart, List<Book> book, LocalDate orderedAt, int totalOrderQty, double totalPrice, boolean cancel) {
+    @Enumerated(EnumType.STRING)
+    private Status orderStatus;
+    public Order(int userId, String address, List<Cart> cart, List<Book> book, LocalDate orderedAt, int totalOrderQty, double totalPrice, boolean cancel, Status orderStatus) {
         this.userId=userId;
         this.cart=cart;
         this.orderedAt=orderedAt;
         this.orderQty=totalOrderQty;
         this.orderPrice=totalPrice;
         this.cancel=cancel;
+        this.orderStatus = orderStatus;
         this.address=address;
         this.book=book;
     }

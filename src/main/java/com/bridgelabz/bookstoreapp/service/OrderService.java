@@ -65,8 +65,7 @@ public class OrderService implements IOrderService{
         }
         else
             address = orderDTO.getAddress();
-        System.out.println(orderedBooks);
-        Order order = new Order(userId, address, cart, orderedBooks, LocalDate.now(), totalOrderQty, totalOrderPrice, false);
+        Order order = new Order(userId, address, cart, orderedBooks, LocalDate.now(), totalOrderQty, totalOrderPrice, false, Status.PENDING);
         orderList.add(order);
         orderRepository.save(order);
         Email email = new Email(user.getEmail(), "Order placed successfully", "Order Details: "+" => "+order.getBook());
@@ -104,6 +103,20 @@ public class OrderService implements IOrderService{
                 throw new CustomException("No order placed by user with id "+id+"!");
         return orders;
     }
+
+    @Override
+    public void updateOrder(int id) {
+        orderRepository.updateOrderStatus(id);
+    }
+
+    @Override
+    public List<Order> getPendingOrders() {
+        List<Order> orderList = orderRepository.findPendingOrders();
+        if (orderList.isEmpty())
+            throw new CustomException("There are no pending orders!");
+        return orderList;
+    }
+
     @Override
     public void cancelOrder(int id) {
         Order order = this.getOrderItemById(id);

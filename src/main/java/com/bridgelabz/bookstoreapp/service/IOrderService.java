@@ -11,4 +11,6 @@ public interface IOrderService {
     Order getOrderItemById(int id);
     void cancelOrder(int id);
     List<Order> getOrderItemByUserId(String token);
+    void updateOrder(int id);
+    List<Order> getPendingOrders();
 }

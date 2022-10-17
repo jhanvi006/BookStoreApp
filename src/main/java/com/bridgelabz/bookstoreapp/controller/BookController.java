@@ -13,6 +13,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
+@RequestMapping("/book")
 public class BookController {
     @Autowired
     private IBookService bookService;

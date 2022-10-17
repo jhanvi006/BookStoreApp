@@ -13,6 +13,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
+@RequestMapping("/order")
 public class OrderController {
     @Autowired
     public IOrderService orderService;
@@ -44,6 +45,18 @@ public class OrderController {
     public ResponseEntity<ResponseDTO> cancelOrder(@PathVariable int id){
         orderService.cancelOrder(id);
         ResponseDTO responseDTO = new ResponseDTO("Order cancel for id successful", "Order cancelled for id: "+id);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+    @PutMapping("updateOrder/{id}")
+    public ResponseEntity<ResponseDTO> updateOrder(@PathVariable int id){
+        orderService.updateOrder(id);
+        ResponseDTO responseDTO = new ResponseDTO("Order updated for id successful", "Order completed for id: "+id);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+    @GetMapping("/getPendingOrders")
+    public ResponseEntity<ResponseDTO> getPendingOrders(){
+        List<Order> pendingOrders = orderService.getPendingOrders();
+        ResponseDTO responseDTO = new ResponseDTO("Get call for all pending orders successful", pendingOrders);
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 }

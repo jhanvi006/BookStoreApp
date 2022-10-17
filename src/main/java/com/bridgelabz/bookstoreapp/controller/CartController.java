@@ -13,6 +13,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
+@RequestMapping("/cart")
 public class CartController {
     @Autowired
     public ICartService cartService;
